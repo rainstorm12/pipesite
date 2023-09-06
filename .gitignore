@@ -1,0 +1,10 @@
+build/
+dist/
+page/
+static/
+GPLinker_torch/datasets/*
+GPLinker_torch/pretrain_model/*
+GPLinker_torch/*.pth
+*.spec
+*.bat
+spec.txt
