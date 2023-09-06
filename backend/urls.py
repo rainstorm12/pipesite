@@ -31,5 +31,8 @@ urlpatterns = [
     url("create_new_tuple",create_new_tuple),
     #监测类
     url("show_weather",show_weather),
+    #知识库类
+    url("AddKnowledgeData",AddKnowledgeData),
+    url("ShowKnowledgeData",ShowKnowledgeData),
 ]
 

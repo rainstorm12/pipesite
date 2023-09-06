@@ -672,6 +672,7 @@ def create_new_tuple(request):
     response['respCode'] = '000005'
     return JsonResponse(response)
 
+#监测界面
 @require_http_methods(["GET"])
 def show_weather(request):
     response = {}
@@ -684,3 +685,31 @@ def show_weather(request):
         response['respMsg'] = str(e)
         response['respCode'] = '999995'
     return JsonResponse(response)
+
+#知识库界面
+#增
+@require_http_methods(["GET"])
+def AddKnowledgeData(request):
+    response = {}
+    try:
+        knowledge = request.GET.get('knowledge')
+        content = request.GET.get('content')
+        knowledge_data = KnowledgeData(Knowledge=knowledge,Content=content)
+        knowledge_data.save()
+        response['respMsg'] = 'success'
+    except Exception as e:
+        response['respMsg'] = str(e)
+    return JsonResponse(response)
+#删
+#查
+@require_http_methods(["GET"])
+def ShowKnowledgeData(request):
+    response = {}
+    try:
+        knowledge_data = KnowledgeData.objects.filter()
+        response['KnowledgeData'] = json.loads(serializers.serialize("json", knowledge_data))
+        response['respMsg'] = 'success'
+    except Exception as e:
+        response['respMsg'] = str(e)
+    return JsonResponse(response)
+#改
