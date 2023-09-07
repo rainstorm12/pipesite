@@ -7,7 +7,7 @@ from django.core import serializers
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
-
+from django.views.decorators.csrf import csrf_exempt
 from backend.models import KnowledgeData
 import uuid
 def search_single_node(name,node_type):
@@ -75,130 +75,6 @@ def nodes_according_to_relations(all_relations,all_nodes):
         if node not in all_nodes:
             all_nodes.append(node)
     return all_nodes
-
-
-# @require_http_methods(["GET"])
-# def add_Node(request):
-#     response = {}
-#     try:
-#         node_name = request.GET.get('node_name')
-#         node = NodesData(nodeName=node_name)
-#         node.save()
-#         response['respMsg'] = 'success'
-#         response['respCode'] = '000000'
-#     except Exception as e:
-#         response['respMsg'] = str(e)
-#         response['respCode'] = '999999'
-#     return JsonResponse(response)
-
-# @require_http_methods(["GET"])
-# def add_Link(request):
-#     response = {}
-#     try:
-#         source_name = request.GET.get('source_name')
-#         sourcenode = LinksData(nodeName=source_name)
-#         sourcenode.save()
-#         response['respMsg'] = 'success'
-#         response['respCode'] = '000000'
-#     except Exception as e:
-#         response['respMsg'] = str(e)
-#         response['respCode'] = '999999'
-#     return JsonResponse(response)
-
-# @require_http_methods(["GET"])
-# def show_Nodes(request):
-#     response = {}
-#     try:
-#         nodes = NodesData.objects.filter()
-#         response['list'] = json.loads(serializers.serialize("json", nodes))
-#         response['respMsg'] = 'success'
-#         response['respCode'] = '000001'
-#     except Exception as e:
-#         response['respMsg'] = str(e)
-#         response['respCode'] = '999998'
-#     return JsonResponse(response)
-
-# @require_http_methods(["GET"])
-# def show_Links(request):
-#     response = {}
-#     try:
-#         links = LinksData.objects.filter()
-#         response['list'] = json.loads(serializers.serialize("json", links))
-#         print(response)
-#         response['respMsg'] = 'success'
-#         response['respCode'] = '000001'
-#     except Exception as e:
-#         response['respMsg'] = str(e)
-#         response['respCode'] = '999998'
-#     return JsonResponse(response)
-
-# @require_http_methods(["GET"])
-# def show_NL(request):
-#     response = {}
-#     try:
-#         nodes = NodesData.objects.filter()
-#         response['nodeslist'] = json.loads(serializers.serialize("json", nodes))
-#         links = LinksData.objects.filter()
-#         response['linkslist'] = json.loads(serializers.serialize("json", links))
-#         response['respMsg'] = 'success'
-#         response['respCode'] = '000002'
-#     except Exception as e:
-#         response['respMsg'] = str(e)
-#         response['respCode'] = '999997'
-#     return JsonResponse(response)
-
-# @require_http_methods(["GET"])
-# def del_Nodes(request):
-#     response = {}
-#     try:
-#         nodes = NodesData.objects.all()
-#         nodes.delete()
-#         response['respMsg'] = 'success'
-#         response['respCode'] = '000003'
-#     except Exception as e:
-#         response['respMsg'] = str(e)
-#         response['respCode'] = '999996'
-#     return JsonResponse(response)
-
-# @require_http_methods(["GET"])
-# def del_Links(request):
-#     response = {}
-#     try:
-#         links = LinksData.objects.all()
-#         links.delete()
-#         response['respMsg'] = 'success'
-#         response['respCode'] = '000003'
-#     except Exception as e:
-#         response['respMsg'] = str(e)
-#         response['respCode'] = '999996'
-#     return JsonResponse(response)
-
-# #旧版本（sql为基础数据）编辑服务指令
-# @require_http_methods(["GET"])
-# def update_Node_sql(request):
-#     response = {}
-#     try:
-#         node_id = request.GET.get('node_id')
-#         node_name = request.GET.get('node_name')
-#         node_attribute = request.GET.get('node_attribute')
-#         #获得节点信息
-#         node = NodesData.objects.filter(id=node_id)
-#         for n in node:
-#             upnode = n.nodeName
-#         #修改关系数据
-#         links = LinksData.objects.filter(sourceNode=upnode)
-#         links.update(sourceNode=node_name)
-#         links = LinksData.objects.filter(targetNode=upnode)
-#         links.update(targetNode=node_name)
-#         #修改节点数据
-#         node.update(nodeName=node_name)
-#         node.update(attribute=node_attribute)
-#         response['respMsg'] = 'success'
-#         response['respCode'] = '000004'
-#     except Exception as e:
-#         response['respMsg'] = str(e)
-#         response['respCode'] = '999995'
-#     return JsonResponse(response)
 
 from pipesite.settings import GRAPH
 import time
@@ -688,12 +564,14 @@ def show_weather(request):
 
 #知识库界面
 #增
-@require_http_methods(["GET"])
+@require_http_methods(["POST"]) 
+@csrf_exempt
 def AddKnowledgeData(request):
     response = {}
     try:
-        knowledge = request.GET.get('knowledge')
-        content = request.GET.get('content')
+        data = json.loads(request.body.decode('utf-8'))
+        knowledge = data.get('knowledge')
+        content = data.get('content')
         knowledge_data = KnowledgeData(Knowledge=knowledge,Content=content)
         knowledge_data.save()
         response['respMsg'] = 'success'
@@ -701,6 +579,21 @@ def AddKnowledgeData(request):
         response['respMsg'] = str(e)
     return JsonResponse(response)
 #删
+@require_http_methods(["POST"]) 
+@csrf_exempt
+def DeleteKnowledgeData(request):
+    response = {}
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        knowledge = data.get('knowledge')
+        content = data.get('content')
+        pk = data.get('pk')
+        knowledge_data = KnowledgeData.objects.filter(id=pk)
+        knowledge_data.delete()
+        response['respMsg'] = 'success'
+    except Exception as e:
+        response['respMsg'] = str(e)
+    return JsonResponse(response)
 #查
 @require_http_methods(["GET"])
 def ShowKnowledgeData(request):
@@ -713,3 +606,19 @@ def ShowKnowledgeData(request):
         response['respMsg'] = str(e)
     return JsonResponse(response)
 #改
+@require_http_methods(["POST"]) 
+@csrf_exempt
+def ModifyKnowledgeData(request):
+    response = {}
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        knowledge = data.get('knowledge')
+        content = data.get('content')
+        pk = data.get('pk')
+        knowledge_data = KnowledgeData.objects.filter(id=pk)
+        knowledge_data.update(Knowledge=knowledge)
+        knowledge_data.update(Content=content)
+        response['respMsg'] = 'success'
+    except Exception as e:
+        response['respMsg'] = str(e)
+    return JsonResponse(response)

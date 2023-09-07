@@ -33,6 +33,8 @@ urlpatterns = [
     url("show_weather",show_weather),
     #知识库类
     url("AddKnowledgeData",AddKnowledgeData),
+    url("DeleteKnowledgeData",DeleteKnowledgeData),
     url("ShowKnowledgeData",ShowKnowledgeData),
+    url("ModifyKnowledgeData",ModifyKnowledgeData),
 ]
 
